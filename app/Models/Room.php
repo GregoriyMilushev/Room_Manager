@@ -4,33 +4,31 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Room;
+use App\Models\Desk;
 
-class Desk extends Model
+class Room extends Model
 {
     use HasFactory;
 
-    protected $table = 'desks';
+    protected $table = 'rooms';
 
-      /**
+    /**
      * The attributes that are mass assignable.
      *
      * @var string[]
      */
     protected $fillable = [
-        'price_per_week',
+        'desk_capacity',
         'size',
-        'position',
-        'room_id'
     ];
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongTo(User::class, 'manager_id');
     }
 
-    public function room()
+    public function desk()
     {
-        return $this->belongTo(Room::class);
+        return $this->hasMany(Desk::class);
     }
 }

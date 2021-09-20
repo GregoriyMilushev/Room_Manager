@@ -14,13 +14,19 @@ class CreateDesksTable extends Migration
     public function up()
     {
         Schema::create('desks', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
             $table->decimal('price_per_week', 5, 2);
             $table->enum('size', ['small', 'big']);
             $table->string('position');
             $table->boolean('is_taken')->default(false);
+            $table->integer('user_id')->unsigned()->nullable();
             $table->unsignedBigInteger('rented_weeks')->nullable();
+            $table->date('rented_at')->nullable();
+            $table->date('rent_until')->nullable();
+            $table->integer('room_id')->unsigned();
             $table->timestamps();
+            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('room_id')->references('id')->on('rooms');
         });
     }
 
@@ -29,8 +35,8 @@ class CreateDesksTable extends Migration
      *
      * @return void
      */
-    public function down()
-    {
-        Schema::dropIfExists('desks');
-    }
-}
+     public function down()
+     {
+         Schema::dropIfExists('desks');
+     }
+ }

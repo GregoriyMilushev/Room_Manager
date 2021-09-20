@@ -3,18 +3,33 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use App\Models\Desk;
+use App\Models\Room;
 
 class DeskController extends Controller
 {
+    Alsls dsfsdf;
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
+    public function __constructor(Alsls dsfsdf)
+    {
+        $this->dsfsdf = dsfsdf;
+    }
     public function index()
     {
-        return Desk::all();
+        return $this->dsfsdf->print(Desk::all());
+    }
+
+    print() {
+        forreasch
+        return 'data'
+        desk-> name;
+        relations 
+        desk->room->id
     }
 
     /**
@@ -25,10 +40,13 @@ class DeskController extends Controller
      */
     public function store(Request $request)
     {
+        $latest_room_id = Room::latest()->first()->id;
+
         $request->validate([
             'price_per_week' => 'required|numeric|between:0.00,99.99',
             'size' => 'required|in:small,big',
             'position' => 'required|string|max:250',
+            'room_id' => 'required|numeric|between:1,'. $latest_room_id,
         ]);
 
         return Desk::create($request->all());
@@ -40,7 +58,7 @@ class DeskController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $request, $id)
     {
         return Desk::find($id);
     }
@@ -82,13 +100,5 @@ class DeskController extends Controller
        return Desk::where('position', 'like', '%'.$position.'%')->get();
     }
 
-     /**
-     * Display a listing of the free desks.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function available()
-    {
-        return Desk::where('is_taken', false)->get();
-    }
+     
 }
