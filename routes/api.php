@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DeskController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\RoomController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,10 +28,11 @@ Route::get("/desksavailable",[UserController::class, 'available']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-
+Route::resource('rooms', RoomController::class);
 
 //Protected routes
 Route::group(['middleware' => ['auth:sanctum']], function () {
+
     Route::post('/logout', [AuthController::class, 'logout']);
 
     Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => 'admin'],function () {

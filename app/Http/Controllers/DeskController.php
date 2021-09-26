@@ -9,27 +9,14 @@ use App\Models\Room;
 
 class DeskController extends Controller
 {
-    Alsls dsfsdf;
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function __constructor(Alsls dsfsdf)
-    {
-        $this->dsfsdf = dsfsdf;
-    }
     public function index()
     {
-        return $this->dsfsdf->print(Desk::all());
-    }
-
-    print() {
-        forreasch
-        return 'data'
-        desk-> name;
-        relations 
-        desk->room->id
+        return Desk::all();
     }
 
     /**
@@ -48,6 +35,15 @@ class DeskController extends Controller
             'position' => 'required|string|max:250',
             'room_id' => 'required|numeric|between:1,'. $latest_room_id,
         ]);
+
+        $room = Room::where('id',$request['room_id'])->first();
+        $desks_count = $room->desk->count();
+
+        if ($room->desk_capacity <= $desks_count) {
+            return response([
+                'message' => 'Room is allready Full!'
+            ],403);
+        }
 
         return Desk::create($request->all());
     }

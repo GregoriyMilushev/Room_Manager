@@ -26,10 +26,10 @@ class RoomFactory extends Factory
         $desk_capacity;
 
         if ($size == 'big') {
-            $desk_capacity = $this->faker->numberBetween(10,15);
+            $desk_capacity = 15;
         }
         else if($size == 'small'){
-            $desk_capacity = $this->faker->numberBetween(5,10);
+            $desk_capacity = 10;
         }
 
         return [

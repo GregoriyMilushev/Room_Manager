@@ -18,8 +18,8 @@ class Room extends Model
      * @var string[]
      */
     protected $fillable = [
-        'desk_capacity',
         'size',
+        'desk_capacity'
     ];
 
     public function user()
