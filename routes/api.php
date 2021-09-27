@@ -18,30 +18,35 @@ use App\Http\Controllers\RoomController;
 |
 */
 
-//public routs
-Route::get('/desks/search/{position}',[DeskController::class, 'search']);
-Route::get('/desks/{id}',[DeskController::class, 'show'])->middleware('admin');
-Route::get('/desks',[DeskController::class, 'index']);
 
-Route::get("/desksavailable",[UserController::class, 'available']);
+// Route::get('/desks/{id}',[DeskController::class, 'show']);
+// Route::get('/desks',[DeskController::class, 'index']);
+
+// Route::get("/user",[UserController::class, 'index']);
+Route::put("/user/rent/{desk_id}",[UserController::class, 'rent']);
+Route::get("/user/price",[UserController::class, 'price']);
+
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout']);
+
+Route::resource('user', UserController::class);
 
 Route::resource('rooms', RoomController::class);
 
+Route::resource('desks', DeskController::class);
+Route::get('/desks/search/{position}',[DeskController::class, 'search']);
+
 //Protected routes
-Route::group(['middleware' => ['auth:sanctum']], function () {
+// Route::group(['middleware' => ['auth:sanctum']], function () {
 
-    Route::post('/logout', [AuthController::class, 'logout']);
 
-    Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => 'admin'],function () {
-        Route::post('/desks',[DeskController::class, 'store']);
-        Route::put('/desks/{id}',[DeskController::class, 'update']);
-        Route::delete('/desks/{id}',[DeskController::class, 'destroy']);
+//     // Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => 'admin'],function () {
+//     //     Route::post('/desks',[DeskController::class, 'store']);
+//     //     Route::put('/desks/{id}',[DeskController::class, 'update']);
+//     //     Route::delete('/desks/{id}',[DeskController::class, 'destroy']);
         
-    });
+//     // });
     
-    Route::put("/user/rent/{desk_id}",[UserController::class, 'rent']);
-    Route::get("/user/price",[UserController::class, 'price']);
-});
+// });

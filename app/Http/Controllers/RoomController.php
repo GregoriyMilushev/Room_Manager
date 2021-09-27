@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Room;
 use App\Models\User;
+use App\Models\Desk;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 
@@ -13,7 +14,7 @@ class RoomController extends Controller
     public function __construct()
     {
          $this->middleware('auth:sanctum');
-         $this->middleware('admin')->only(['store','update','destroy']);
+         $this->middleware('admin')->only(['store', 'update', 'destroy', 'show']);
     }
 
     /**
@@ -23,7 +24,20 @@ class RoomController extends Controller
      */
     public function index()
     {
-        return Room::all();
+        $user = auth()->user();
+
+        if ($user->role == 'room manager') {
+
+            return Room::where('manager_id', $user->id)->first();
+        }
+        else if ($user->role == 'admin') {
+            return Room::all();
+        }
+        else {
+            return response([
+                'message' => 'Client not allowed'
+            ],403);
+        }
     }
 
     /**
@@ -110,17 +124,21 @@ class RoomController extends Controller
 
         $is_taken = Room::where('manager_id', $user->id)->first() ? true : false;
 
-        if ($is_taken) {
+        if ($is_taken && $user->id != 1) {
             return response([
                 'message' => 'Manager is allready taken'
             ], 404);
         }
 
         $room->manager_id = $user->id;
-        $user->role = 'room manager';
-
         $room->save();
-        $user->save();
+
+        if ($user->id != 1) {
+
+            $user->role = 'room manager';
+            $user->save();
+        }
+        
 
         return response([
             'room' => $room,
@@ -136,7 +154,21 @@ class RoomController extends Controller
      */
     public function destroy($id)
     {
+        $room = Room::where('id', $id)->first();
+        $room_manager = $room->user;
+        $desks = $room->desks;
+
+        if ($room_manager->id != 1) {
+
+            $room_manager->role = 'client';
+            $room_manager->save();
+        }
+
+        Desk::destroy($desks);
         Room::destroy($id);
-        return 'Successfully deleted';
+
+        return response([
+            'message' =>'Successfully deleted Room and Desks',
+            'user' => $room_manager], 200);
     }
 }

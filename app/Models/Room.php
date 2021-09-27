@@ -19,15 +19,16 @@ class Room extends Model
      */
     protected $fillable = [
         'size',
-        'desk_capacity'
+        'desk_capacity',
+        'manager_id',
     ];
 
     public function user()
     {
-        return $this->belongTo(User::class, 'manager_id');
+        return $this->belongsTo(User::class, 'manager_id');
     }
 
-    public function desk()
+    public function desks()
     {
         return $this->hasMany(Desk::class);
     }
