@@ -10,12 +10,17 @@ use App\Models\User;
 
 class UserController extends Controller
 {
+    public function __construct()
+    {
+         $this->middleware('auth:sanctum');
+    }
+
     /**
      * Display a listing of the free desks.
      *
      * @return \Illuminate\Http\Response
      */
-    public function available()
+    public function index()
     {
         return Desk::where('is_taken', false)->get();
     }

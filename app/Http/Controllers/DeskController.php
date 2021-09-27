@@ -9,27 +9,37 @@ use App\Models\Room;
 
 class DeskController extends Controller
 {
-    Alsls dsfsdf;
+    public function __construct()
+    {
+         $this->middleware('auth:sanctum');
+         $this->middleware('admin')->only(['store','update','destroy']);
+    }
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function __constructor(Alsls dsfsdf)
-    {
-        $this->dsfsdf = dsfsdf;
-    }
     public function index()
     {
-        return $this->dsfsdf->print(Desk::all());
-    }
+        $user = auth()->user();
 
-    print() {
-        forreasch
-        return 'data'
-        desk-> name;
-        relations 
-        desk->room->id
+        if ($user->role == 'room manager') {
+            $room_id = $user->rooms->first()->id;
+            return Desk::where('room_id', $room_id)->get();
+        }
+        else if ($user->role == 'client') {
+            $desk = $user->desk;
+            if ($desk == null) {
+                return response([
+                    'message' => 'You have not rented a desk'
+                ],400);
+            }
+
+            return $desk;
+        }
+        
+        return Desk::all();
     }
 
     /**
@@ -48,6 +58,15 @@ class DeskController extends Controller
             'position' => 'required|string|max:250',
             'room_id' => 'required|numeric|between:1,'. $latest_room_id,
         ]);
+
+        $room = Room::where('id',$request['room_id'])->first();
+        $desks_count = $room->desks->count();
+
+        if ($room->desk_capacity <= $desks_count) {
+            return response([
+                'message' => 'Room is allready Full!'
+            ],403);
+        }
 
         return Desk::create($request->all());
     }
