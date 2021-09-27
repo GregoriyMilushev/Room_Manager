@@ -10,6 +10,11 @@ use App\Models\User;
 
 class AuthController extends Controller
 {
+    public function __construct()
+    {
+         $this->middleware('auth:sanctum')->only('logout');
+    }
+    
     public function register(Request $request)
     {
         $fields = $request->validate([
@@ -60,7 +65,7 @@ class AuthController extends Controller
         return response($response,201);
     }
 
-    public function Logout(Request $request)
+    public function logout(Request $request)
     {
         auth()->user()->tokens()->delete();
 

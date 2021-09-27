@@ -49,7 +49,7 @@ class User extends Authenticatable
         return $this->hasOne(Desk::class);
     }
 
-    public function room()
+    public function rooms()
     {
         return $this->hasMany(Room::class,'manager_id');
     }
