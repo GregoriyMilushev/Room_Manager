@@ -9,6 +9,12 @@ use App\Models\Room;
 
 class DeskController extends Controller
 {
+    public function __construct()
+    {
+         $this->middleware('auth:sanctum');
+         $this->middleware('admin')->only(['store','update','destroy']);
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -16,6 +22,23 @@ class DeskController extends Controller
      */
     public function index()
     {
+        $user = auth()->user();
+
+        if ($user->role == 'room manager') {
+            $room_id = $user->rooms->first()->id;
+            return Desk::where('room_id', $room_id)->get();
+        }
+        else if ($user->role == 'client') {
+            $desk = $user->desk;
+            if ($desk == null) {
+                return response([
+                    'message' => 'You have not rented a desk'
+                ],400);
+            }
+
+            return $desk;
+        }
+        
         return Desk::all();
     }
 
@@ -37,7 +60,7 @@ class DeskController extends Controller
         ]);
 
         $room = Room::where('id',$request['room_id'])->first();
-        $desks_count = $room->desk->count();
+        $desks_count = $room->desks->count();
 
         if ($room->desk_capacity <= $desks_count) {
             return response([

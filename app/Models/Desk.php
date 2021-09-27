@@ -31,6 +31,6 @@ class Desk extends Model
 
     public function room()
     {
-        return $this->belongTo(Room::class);
+        return $this->belongsTo(Room::class);
     }
 }
