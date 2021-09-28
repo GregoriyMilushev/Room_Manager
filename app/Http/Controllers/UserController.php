@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Database\Eloquent\Relations;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use App\Http\Resources\DeskResource;
 use App\Models\Desk;
 use App\Models\User;
 
@@ -22,7 +23,8 @@ class UserController extends Controller
      */
     public function index()
     {
-        return Desk::where('is_taken', false)->get();
+        $available_desks = Desk::where('is_taken', false)->get();
+        return DeskResource::collection($available_desks);
     }
 
      /**
@@ -45,12 +47,12 @@ class UserController extends Controller
             $desk->save();
         }
         else {
-            return [
+            return response([
                 'massage' => 'Desk is allready taken.'
-            ];
+            ], 403);
         }
 
-        return Desk::where('id', $desk_id)->get();
+        return new DeskResource($desk);
     }
 
     /**
@@ -66,9 +68,11 @@ class UserController extends Controller
         $total_price = number_format($rented_weeks * $price_per_week, 2);
 
         $response = [
+            'data' =>[
             'rented_weeks' => $rented_weeks,
             'price_per_week' => $price_per_week,
             'total_price' => $total_price,
+            ]
         ];
 
         return response($response, 200);

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Room;
 use App\Models\User;
 use App\Models\Desk;
+use App\Http\Resources\UserResource;
+use App\Http\Resources\RoomResource;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 
@@ -27,11 +29,11 @@ class RoomController extends Controller
         $user = auth()->user();
 
         if ($user->role == 'room manager') {
-
-            return Room::where('manager_id', $user->id)->first();
+            $room = Room::where('manager_id', $user->id)->first();
+            return new RoomResource($room);
         }
         else if ($user->role == 'admin') {
-            return Room::all();
+            return RoomResource::collection(Room::paginate());
         }
         else {
             return response([
@@ -78,7 +80,7 @@ class RoomController extends Controller
             'manager_id' => $request['manager_id'] ?: 1,
         ]);
 
-        return response($room, 201);
+        return new RoomResource($room);
     }
 
     /**
@@ -87,9 +89,9 @@ class RoomController extends Controller
      * @param  \App\Models\Room  $room
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request,$id)
+    public function show(Request $request,Room $room)
     {
-        return Room::find($id);
+        return new RoomResource($room);
     }
 
     /**
@@ -140,10 +142,7 @@ class RoomController extends Controller
         }
         
 
-        return response([
-            'room' => $room,
-            'user' => $user,
-        ], 200);
+        return new RoomResource($room);
     }
 
     /**
@@ -169,6 +168,7 @@ class RoomController extends Controller
 
         return response([
             'message' =>'Successfully deleted Room and Desks',
-            'user' => $room_manager], 200);
+            'user' => new UserResource($room_manager)
+        ], 200);
     }
 }

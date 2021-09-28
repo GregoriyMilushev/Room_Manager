@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Models\Desk;
 use App\Models\Room;
+use App\Http\Resources\DeskResource;
+use App\Http\Requests\DesksRequest;
 
 class DeskController extends Controller
 {
@@ -26,7 +28,9 @@ class DeskController extends Controller
 
         if ($user->role == 'room manager') {
             $room_id = $user->rooms->first()->id;
-            return Desk::where('room_id', $room_id)->get();
+            $desks = Desk::where('room_id', $room_id)->get();
+
+            return DeskResource::collection($desks);
         }
         else if ($user->role == 'client') {
             $desk = $user->desk;
@@ -36,10 +40,10 @@ class DeskController extends Controller
                 ],400);
             }
 
-            return $desk;
+            return new DeskResource($desk);
         }
-        
-        return Desk::all();
+
+        return DeskResource::collection(Desk::paginate());
     }
 
     /**
@@ -48,17 +52,8 @@ class DeskController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(DesksRequest $request)
     {
-        $latest_room_id = Room::latest()->first()->id;
-
-        $request->validate([
-            'price_per_week' => 'required|numeric|between:0.00,99.99',
-            'size' => 'required|in:small,big',
-            'position' => 'required|string|max:250',
-            'room_id' => 'required|numeric|between:1,'. $latest_room_id,
-        ]);
-
         $room = Room::where('id',$request['room_id'])->first();
         $desks_count = $room->desks->count();
 
@@ -67,8 +62,9 @@ class DeskController extends Controller
                 'message' => 'Room is allready Full!'
             ],403);
         }
+        $desk = Desk::create($request->all());
 
-        return Desk::create($request->all());
+        return new DeskResource($desk);
     }
 
     /**
@@ -77,9 +73,9 @@ class DeskController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, $id)
+    public function show(Request $request, Desk $desk)
     {
-        return Desk::find($id);
+        return new DeskResource($desk);
     }
 
     /**
@@ -94,7 +90,7 @@ class DeskController extends Controller
         $desk = Desk::find($id);
         $desk->update($request->all());
 
-        return $desk;
+        return new DeskResource($desk);
     }
 
     /**
@@ -116,7 +112,9 @@ class DeskController extends Controller
      */
     public function search($position)
     {
-       return Desk::where('position', 'like', '%'.$position.'%')->get();
+        $desks = Desk::where('position', 'like', '%'.$position.'%')->get();
+
+        return  DeskResource::collection($desks);
     }
 
      
