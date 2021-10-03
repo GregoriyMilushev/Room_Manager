@@ -19,17 +19,13 @@ use App\Http\Controllers\RoomController;
 */
 
 
-// Route::get('/desks/{id}',[DeskController::class, 'show']);
-// Route::get('/desks',[DeskController::class, 'index']);
-
-// Route::get("/user",[UserController::class, 'index']);
 Route::put("/user/rent/{desk_id}",[UserController::class, 'rent']);
 Route::get("/user/price",[UserController::class, 'price']);
 
 
-Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logout']);
+Route::post('/register', [AuthController::class, 'register']);
+Route::get('/logout', [AuthController::class, 'logout']);
 
 Route::resource('user', UserController::class);
 
