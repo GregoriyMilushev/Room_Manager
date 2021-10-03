@@ -25,8 +25,8 @@ class RoomResource extends JsonResource
             'attributes' => [
                 'desk_capacity' => $this->desk_capacity,
                 'size' => $this->size,
-                'manager' => new UserResource($manager),
-                'desks' => DeskResource::collection($this->desks)
+                'manager' => $this->user,
+                'desks' => $this->desks,
             ]
         ];
     }
