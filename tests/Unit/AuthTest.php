@@ -9,6 +9,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 
 class AuthTest extends TestCase
 {
+
     /**
      * A basic unit test example.
      *
@@ -17,8 +18,8 @@ class AuthTest extends TestCase
     // public function test_register_form()
     // {
     //     $response = $this->post('api/register', [
-    //         'name' => 'Pesho',
-    //         'email' => 'Pesho@goshev.com',
+    //         'name' => 'Peshos',
+    //         'email' => 'Peshos@goshev.com',
     //         'password' => '12345678',
     //         'password_confirmation' => '12345678',
     //     ]);
@@ -29,7 +30,7 @@ class AuthTest extends TestCase
     // public function test_login_form()
     // {
     //     $response = $this->post('api/login', [
-    //         'email' => 'Pesho@goshev.com',
+    //         'email' => 'Peshos@goshev.com',
     //         'password' => '12345678', 
     //     ]);
 

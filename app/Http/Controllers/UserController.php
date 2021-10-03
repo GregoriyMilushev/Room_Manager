@@ -69,9 +69,9 @@ class UserController extends Controller
 
         $response = [
             'data' =>[
-            'rented_weeks' => $rented_weeks,
-            'price_per_week' => $price_per_week,
-            'total_price' => $total_price,
+                'rented_weeks' => $rented_weeks,
+                'price_per_week' => $price_per_week,
+                'total_price' => $total_price,
             ]
         ];
 
