@@ -19,7 +19,7 @@ class Admin
         if (auth()->user()->role != 'admin') {
             return response([
                 'massage' => 'Only for admins'
-            ],403);
+            ],401);
         }
 
         return $next($request);

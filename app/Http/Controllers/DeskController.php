@@ -37,7 +37,7 @@ class DeskController extends Controller
             if ($desk == null) {
                 return response([
                     'message' => 'You have not rented a desk'
-                ],400);
+                ],403);
             }
 
             return new DeskResource($desk);
