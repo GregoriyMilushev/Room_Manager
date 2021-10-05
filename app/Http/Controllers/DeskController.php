@@ -54,8 +54,8 @@ class DeskController extends Controller
      */
     public function store(DesksRequest $request)
     {
-        $room = Room::where('id',$request['room_id'])->first();
-        
+        $room = Room::find($request['room_id']);
+
         $desks_count = $room->desks->count();
 
         if ($room->desk_capacity <= $desks_count) {
@@ -63,6 +63,7 @@ class DeskController extends Controller
                 'message' => 'Room is allready Full!'
             ],403);
         }
+
         $desk = Desk::create($request->all());
 
         return new DeskResource($desk);

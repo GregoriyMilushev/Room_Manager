@@ -106,7 +106,7 @@ class RoomController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update room manager.
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Models\Room  $room
@@ -116,31 +116,36 @@ class RoomController extends Controller
     {
         $room = Room::find($id);
 
-        $user = User::where('id',$request['manager_id'])->first();
+        $old_manager = User::find($room->manager_id);
+        $new_manager = User::where('id',$request['manager_id'])->first();
         
-        if ($user == null) {
+        if ($new_manager == null) {
             return response([
                 'message' => 'User does not exists'
                 ,404]);
         }
 
-        $is_taken = Room::where('manager_id', $user->id)->first() ? true : false;
+        $is_taken = Room::where('manager_id', $new_manager->id)->first() ? true : false;
 
-        if ($is_taken && $user->id != 1) {
+        if ($is_taken && $new_manager->id != 1) {
             return response([
                 'message' => 'Manager is allready taken'
             ], 404);
         }
 
-        $room->manager_id = $user->id;
+        $room->manager_id = $new_manager->id;
         $room->save();
 
-        if ($user->id != 1) {
+        if ($new_manager->id != 1) {
 
-            $user->role = 'room manager';
-            $user->save();
+            $new_manager->role = 'room manager';
+            $new_manager->save();
         }
         
+        if ($old_manager->id != 1) {
+            $old_manager->role = 'client';
+            $old_manager->save();
+        }
 
         return new RoomResource($room);
     }
