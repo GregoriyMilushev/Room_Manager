@@ -23,7 +23,7 @@ class DeskResource extends JsonResource
                 'size' => $this->size,
                 'position' => $this->position,
                 'client' => $this->when($this->is_taken, [
-                    new UserResource($this->user),
+                    'user' => new UserResource($this->user),
                     'rented_weeks' => $this->rented_weeks,
                     'rented_at' => $this->rented_at,
                     'rent_until' => $this->rent_until,
