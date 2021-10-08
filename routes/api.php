@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\DeskController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
@@ -17,32 +18,19 @@ use App\Http\Controllers\RoomController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-
-
-Route::put("/user/rent/{desk_id}",[UserController::class, 'rent']);
-Route::get("/user/price",[UserController::class, 'price']);
-
-
+// Auth::routes();
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout']);
 
-Route::resource('user', UserController::class);
+Route::resource('users', UserController::class);
+Route::patch("/users/rent/{desk_id}",[UserController::class, 'rent']);
+Route::get("/users/price",[UserController::class, 'price']);
 
 Route::resource('rooms', RoomController::class);
 
 Route::resource('desks', DeskController::class);
 Route::get('/desks/search/{position}',[DeskController::class, 'search']);
+//TODO: POST:'/desks/available', but cant access with GET:'/desks/available' ???
+Route::post('/desks/available',[DeskController::class, 'available'])->name('available');
 
-//Protected routes
-// Route::group(['middleware' => ['auth:sanctum']], function () {
-
-
-//     // Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => 'admin'],function () {
-//     //     Route::post('/desks',[DeskController::class, 'store']);
-//     //     Route::put('/desks/{id}',[DeskController::class, 'update']);
-//     //     Route::delete('/desks/{id}',[DeskController::class, 'destroy']);
-        
-//     // });
-    
-// });

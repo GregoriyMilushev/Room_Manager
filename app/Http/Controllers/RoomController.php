@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Desk;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\RoomResource;
+use App\Http\Requests\RoomRequest;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 
@@ -58,12 +59,8 @@ class RoomController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(RoomRequest $request)
     {
-        $request->validate([
-            'size' => 'required|in:small,big',
-        ]);
-
         $desk_capacity = 0;
         $size = $request->size;
 
@@ -77,7 +74,7 @@ class RoomController extends Controller
         $room = Room::create([
             'desk_capacity' => $desk_capacity,
             'size' => $request['size'],
-            'manager_id' => $request['manager_id'] ?: 1,
+            'manager_id' => $request['manager_id'] ?: auth()->user()->id,
         ]);
 
         return new RoomResource($room);
