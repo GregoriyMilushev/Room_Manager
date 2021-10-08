@@ -14,7 +14,7 @@ class DeskController extends Controller
     public function __construct()
     {
          $this->middleware('auth:sanctum');
-         $this->middleware('admin')->only(['store','update','destroy']);
+         $this->middleware('admin')->only(['store', 'update', 'destroy', 'search']);
     }
 
     /**
@@ -87,7 +87,7 @@ class DeskController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request,$id)
     {
         $desk = Desk::find($id);
         $desk->update($request->all());
@@ -101,13 +101,13 @@ class DeskController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Desk $desk)
     {
-       return Desk::destroy($id);
+       return Desk::destroy($desk->id);
     }
 
     /**
-     * Search for position
+     * Search by position
      *
      * @param  string  $position
      * @return \Illuminate\Http\Response
@@ -119,5 +119,16 @@ class DeskController extends Controller
         return  DeskResource::collection($desks);
     }
 
-     
+      /**
+     * Search for available Desks
+     *
+     * @param  string  $position
+     * @return \Illuminate\Http\Response
+     */
+    public function available()
+    {
+        $available_desks = Desk::where('is_taken', false)->get();
+
+        return DeskResource::collection($available_desks);
+    }
 }
