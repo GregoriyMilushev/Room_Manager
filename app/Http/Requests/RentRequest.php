@@ -3,9 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use App\Models\Room;
 
-class DesksRequest extends FormRequest
+class RentRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,13 +23,8 @@ class DesksRequest extends FormRequest
      */
     public function rules()
     {
-        $latest_room_id = Room::latest()->first()->id;
-
-        return [    
-            'price_per_week' => 'required|numeric|between:5.00,99.99',
-            'size' => 'required|in:small,big',
-            'position' => 'required|string|max:250',
-            'room_id' => 'required|numeric|between:1,'. $latest_room_id,
+        return [
+            'rented_weeks' => 'required|numeric|min:1',
         ];
     }
 }

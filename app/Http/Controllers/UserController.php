@@ -8,6 +8,7 @@ use Illuminate\Http\Response;
 use App\Http\Resources\DeskResource;
 use App\Http\Resources\UserResource;
 use App\Http\Requests\UserRequest;
+use App\Http\Requests\RentRequest;
 use App\Models\Desk;
 use App\Models\Room;
 use App\Models\User;
@@ -68,7 +69,8 @@ class UserController extends Controller
             $user_desk->rent_until = null;
             $user_desk->save();
         }
-       return User::destroy($user->id);
+
+        return User::destroy($user->id);
     }
 
     /**
@@ -79,20 +81,21 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(UserRequest $request, User $user)
-    {
+    {   // Another admin cant be updated
         // if ($user[role] == 'admin') {
         //     return response([
-        //         'message' => 'Dont allowed to update a Admin'
+        //         'message' => 'Not allowed to update a Admin'
         //     ],403);
         // }
 
         $user->update($request->all());
+        
+        // Make another admin?
+        // if ($request['role']) {
 
-        if ($request['role']) {
-
-            $user->role = $request['role'];
-            $user->save();
-        }
+        //     $user->role = $request['role'];
+        //     $user->save();
+        // }
 
         return new UserResource($user);
     }
@@ -102,9 +105,16 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function rent(Request $request, $desk_id)
+    public function rent(RentRequest $request, $desk_id)
     {
         $desk = Desk::find($desk_id);
+        $user = auth()->user();
+
+        if ($user['role'] != 'client') {
+            return response([
+                'message' => 'Only clients are allowed to rent a desk'
+            ], 403);
+        }
 
         if ($desk->is_taken == false) {
 

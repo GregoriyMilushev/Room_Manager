@@ -30,15 +30,18 @@ class RoomController extends Controller
         $user = auth()->user();
 
         if ($user->role == 'room manager') {
+
             $room = Room::where('manager_id', $user->id)->first();
             return new RoomResource($room);
         }
         else if ($user->role == 'admin') {
+
             return RoomResource::collection(Room::paginate());
         }
         else {
+
             return response([
-                'message' => 'Client not allowed'
+                'message' => 'Clients are not allowed'
             ],403);
         }
     }
@@ -109,40 +112,31 @@ class RoomController extends Controller
      * @param  \App\Models\Room  $room
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Room $room)
     {
-        $room = Room::find($id);
-
-        $old_manager = User::find($room->manager_id);
-        $new_manager = User::where('id',$request['manager_id'])->first();
+        if ($request['manager_id']) {
+            
+            $old_manager = User::find($room->manager_id);
+            $new_manager = User::where('id',$request['manager_id'])->first();
         
-        if ($new_manager == null) {
-            return response([
-                'message' => 'User does not exists'
-                ,404]);
+            if ($new_manager == null) {
+                return response([
+                    'message' => 'User does not exists'
+                ], 404);
+            }
+
+            $is_taken = Room::where('manager_id', $new_manager->id)->first() ? true : false;
+
+            if ($is_taken && $new_manager->role != 'admin') {
+                return response([
+                    'message' => 'Manager is allready taken'
+                ], 403);
+            }
+
+            $this->UpdateRoomManager($old_manager, $new_manager, $room);
         }
 
-        $is_taken = Room::where('manager_id', $new_manager->id)->first() ? true : false;
-
-        if ($is_taken && $new_manager->id != 1) {
-            return response([
-                'message' => 'Manager is allready taken'
-            ], 404);
-        }
-
-        $room->manager_id = $new_manager->id;
-        $room->save();
-
-        if ($new_manager->id != 1) {
-
-            $new_manager->role = 'room manager';
-            $new_manager->save();
-        }
-        
-        if ($old_manager->id != 1) {
-            $old_manager->role = 'client';
-            $old_manager->save();
-        }
+        $room->update($request->all());
 
         return new RoomResource($room);
     }
@@ -153,24 +147,46 @@ class RoomController extends Controller
      * @param  \App\Models\Room  $room
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Room $room)
     {
-        $room = Room::where('id', $id)->first();
         $room_manager = $room->user;
         $desks = $room->desks;
 
-        if ($room_manager->id != 1) {
+        if ($room_manager->role != 'admin') {
 
             $room_manager->role = 'client';
             $room_manager->save();
         }
 
         Desk::destroy($desks);
-        Room::destroy($id);
+        Room::destroy($room->id);
 
         return response([
             'message' =>'Successfully deleted Room and Desks',
             'user' => new UserResource($room_manager)
         ], 200);
+    }
+
+    private function UpdateRoomManager(User $old_manager, User $new_manager, Room $room): void
+    {
+        $room->manager_id = $new_manager->id;
+        $room->save();
+
+        if ($new_manager->role != 'admin') {
+
+            $new_manager->role = 'room manager';
+            $new_manager->save();
+        }
+        
+        if ($old_manager->role != 'admin') {
+
+            $old_manager->role = 'client';
+            $old_manager->save();
+        }
+    }
+
+    private function ValidateNewManager(User $new_manager)
+    {
+        
     }
 }

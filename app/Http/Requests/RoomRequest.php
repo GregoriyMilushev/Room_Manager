@@ -25,6 +25,7 @@ class RoomRequest extends FormRequest
     {
         return [
             'size' => 'required|in:small,big',
+            'manager_id' => 'numeric|min:1'
         ];
     }
 }

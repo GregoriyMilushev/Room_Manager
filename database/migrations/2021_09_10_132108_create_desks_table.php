@@ -19,7 +19,7 @@ class CreateDesksTable extends Migration
             $table->enum('size', ['small', 'big']);
             $table->string('position');
             $table->boolean('is_taken')->default(false);
-            $table->integer('user_id')->unsigned()->nullable();
+            $table->integer('user_id')->unsigned()->unique()->nullable();
             $table->unsignedBigInteger('rented_weeks')->nullable();
             $table->date('rented_at')->nullable();
             $table->date('rent_until')->nullable();

@@ -25,12 +25,12 @@ Route::post('/logout', [AuthController::class, 'logout']);
 
 Route::resource('users', UserController::class);
 Route::patch("/users/rent/{desk_id}",[UserController::class, 'rent']);
-Route::get("/users/price",[UserController::class, 'price']);
+Route::post("/users/price",[UserController::class, 'price']);
 
 Route::resource('rooms', RoomController::class);
 
 Route::resource('desks', DeskController::class);
 Route::get('/desks/search/{position}',[DeskController::class, 'search']);
 //TODO: POST:'/desks/available', but cant access with GET:'/desks/available' ???
-Route::post('/desks/available',[DeskController::class, 'available'])->name('available');
+Route::post('/desks/available',[DeskController::class, 'available'])->name('desks_available');
 

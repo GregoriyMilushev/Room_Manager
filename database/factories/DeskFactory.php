@@ -25,17 +25,7 @@ class DeskFactory extends Factory
     {
         $room = Room::inRandomOrder()->first();
 
-        //$room_id;
-
-        // foreach ($rooms as $room) {
-        //     $desk_capacity = Room::where('id', $room->id)->first()->desk_capacity;
-        //     $desks_count = Desk::where('room_id', $room->id)->count();
-
-        //     if ($desk_capacity >= $desks_count) {
-        //         $room_id = $room->id;
-        //         break;
-        //     }
-        // }
+    
 
         $size = $this->faker->randomElement(['small', 'big']);
         $price;

@@ -17,8 +17,6 @@ class RoomResource extends JsonResource
      */
     public function toArray($request)
     {
-        $manager = User::find($this->manager_id);
-
         return [
             'id' => $this->id,
             'type' => 'Room',
@@ -26,7 +24,7 @@ class RoomResource extends JsonResource
                 'desk_capacity' => $this->desk_capacity,
                 'size' => $this->size,
                 'manager' => $this->user,
-                'desks' => $this->desks,
+                'desks' => DeskResource::collection($this->desks),
             ]
         ];
     }
