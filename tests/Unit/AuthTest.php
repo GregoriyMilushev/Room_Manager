@@ -9,58 +9,67 @@ use Illuminate\Foundation\Testing\WithFaker;
 
 class AuthTest extends TestCase
 {
+    use RefreshDatabase;
+
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $this->user = User::factory()->create([
+            'name' => 'Pesho',
+            'email' => 'Peshos@goshev.com',
+            'password' => bcrypt('12345678'), 
+        ]);
+    }
 
     /**
      * A basic unit test example.
      *
      * @return void
      */
-    // public function test_register_form()
-    // {
-    //     $response = $this->post('api/register', [
-    //         'name' => 'Peshos',
-    //         'email' => 'Peshos@goshev.com',
-    //         'password' => '12345678',
-    //         'password_confirmation' => '12345678',
-    //     ]);
+    public function test_register_form()
+    {
+        $response = $this->post('api/register', [
+            'name' => 'Peshoto',
+            'email' => 'Pesho@abv.com',
+            'password' => '12345678',
+            'password_confirmation' => '12345678',
+        ]);
 
-    //     $response->assertStatus(201);
-    // }
+        $response->assertStatus(201);
+        $response->assertSee('Peshoto');
+    }
 
-    // public function test_login_form()
-    // {
-    //     $response = $this->post('api/login', [
-    //         'email' => 'Peshos@goshev.com',
-    //         'password' => '12345678', 
-    //     ]);
+    public function test_login_form()
+    {
 
-    //     $response->assertStatus(200);
-    // }
+        $response = $this->post('api/login', [
+            'email' => 'Peshos@goshev.com',
+            'password' => '12345678', 
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertSee('Pesho');
+    }
 
     public function test_logout_form()
     {
-        $user = User::factory()->create();
+        $response = $this->post('api/login', [
+            'email' => 'Peshos@goshev.com',
+            'password' => '12345678', 
+        ]);
 
-        $this->actingAs($user);
-
-        $response = $this->post('api/logout');
+        $response = $this->actingAs($this->user)->post('api/logout');
 
         $response->assertStatus(200);
+        $response->assertSee('Logged Out!');
     }
 
     public function test_user_duplication()
     {
-        $user1 = User::make([
-            'name' => 'Pesho',
-            'email' => 'Pesho@gmail.com'
-        ]);
+        $user2 = User::factory()->create();
 
-        $user2 = User::make([
-            'name' => 'Pesh',
-            'email' => 'Pesh@gmail.com'
-        ]);
-
-        $this->assertTrue($user1->name != $user2->name);
+        $this->assertTrue($this->user->name != $user2->name);
     }
 
     
