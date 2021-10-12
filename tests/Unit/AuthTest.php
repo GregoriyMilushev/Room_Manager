@@ -42,7 +42,6 @@ class AuthTest extends TestCase
 
     public function test_login_form()
     {
-
         $response = $this->post('api/login', [
             'email' => 'Peshos@goshev.com',
             'password' => '12345678', 
@@ -71,6 +70,4 @@ class AuthTest extends TestCase
 
         $this->assertTrue($this->user->name != $user2->name);
     }
-
-    
 }
