@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Database\Eloquent\Relations;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Hash;
 use App\Http\Resources\DeskResource;
 use App\Http\Resources\UserResource;
 use App\Http\Requests\UserRequest;
@@ -51,16 +52,26 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        $admin = auth()->user();
-
-        $manager_at_room = $user->rooms->first();
-        $user_desk = $user->desk;
-
-        if ($manager_at_room) {
-            $manager_at_room->manager_id = $admin->id;
-            $manager_at_room->save();
+        if ($user->role == 'admin') {
+            return response([
+                'message' => 'Not allowed to delete Admin user'
+            ],403);
         }
 
+        $admin = auth()->user();
+
+        $user_room = $user->rooms->first();
+        $user_desk = $user->desk;
+        
+        if ($user_room) {
+            $user_room->manager_id = $admin->id;
+            $user_room->save(); 
+            
+            User::destroy($user->id);
+            
+            return $user_room;
+        }
+        
         if ($user_desk) {
             $user_desk->is_taken = false;
             $user_desk->user_id = null;
@@ -68,9 +79,17 @@ class UserController extends Controller
             $user_desk->rented_at = null;
             $user_desk->rent_until = null;
             $user_desk->save();
-        }
+            
+            User::destroy($user->id);
 
-        return User::destroy($user->id);
+            return $user_desk;
+        }
+        
+        User::destroy($user->id);
+
+        return response([
+            'message' => "User is Deleted"
+        ],200);
     }
 
     /**
@@ -81,22 +100,33 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(UserRequest $request, User $user)
-    {   // Another admin cant be updated
-        // if ($user[role] == 'admin') {
-        //     return response([
-        //         'message' => 'Not allowed to update a Admin'
-        //     ],403);
-        // }
+    {    
+        if ($user['role'] == 'admin') {
+            return response([
+                'message' => 'Not allowed to update a Admin user'
+            ],403);
+        }
 
-        $user->update($request->all());
+        if ($request['password']) {
+            $user->password = bcrypt($request['password']);
+        }
         
-        // Make another admin?
-        // if ($request['role']) {
+        
+        if ($request['role'] && $user['role'] == 'room manager') {
 
-        //     $user->role = $request['role'];
-        //     $user->save();
-        // }
+                $user->role = $request['role'];
 
+                $room = $user->rooms->first();
+                $room->manager_id = auth()->user()->id;
+                $room->save();
+        }
+
+        if ($request['name']) {
+            $user->name = $request['name'];
+        }
+
+        $user->save();
+        
         return new UserResource($user);
     }
     
