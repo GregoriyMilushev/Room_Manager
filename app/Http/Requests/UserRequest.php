@@ -25,6 +25,8 @@ class UserRequest extends FormRequest
     {
         return [
             'role' => 'in:client',
+            'name' => 'string|min:3|max:200',
+            //'password' => 'string|min:8'
         ];
     }
 }

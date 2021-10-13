@@ -95,8 +95,52 @@ class UserTest extends TestCase
         $this->assertTrue($desk->is_taken == false);
    }
 
-   public function test_admin_update_user()
+   public function test_admin_cant_update_admin_user()
    {
-       
+        $response = $this->actingAs($this->admin)->patch('api/users/' . $this->admin->id,[
+            'name' => 'John',
+            'role' => 'client'
+        ]);
+
+        $response->assertStatus(403);
+        $response->assertSee('Not allowed to update a Admin user');
+   }
+
+   public function test_admin_cant_update_user_name_lower_than_three_chars()
+   {
+        $response = $this->actingAs($this->admin)->patch('api/users/' . $this->client->id,[
+            'name' => 'Jo',
+            'role' => 'client'
+        ]);
+
+        $response->assertStatus(302);
+        $response->assertSessionHasErrors('name');
+   }
+
+   public function test_admin_can_update_user_name()
+   {
+        $response = $this->actingAs($this->admin)->patch('api/users/' . $this->client->id,[
+            'name' => 'Johni',
+            'role' => 'client'
+        ]);
+
+        $user = json_decode($response->content());
+
+        $response->assertStatus(200);
+        $this->assertTrue($user->name == 'Johni');
+   }
+
+   public function test_admin_can_update_user_role_to_client_form_manager()
+   {
+        $response = $this->actingAs($this->admin)->patch('api/users/' . $this->manager->id,[
+            'role' => 'client'
+        ]);
+
+        $manager_room = Room::find($this->room->id);
+        $user = json_decode($response->content());
+
+        $response->assertStatus(200);
+        $this->assertTrue($user->role == 'client');
+        $this->assertTrue($manager_room->manager_id ==  $this->admin->id);
    }
 }

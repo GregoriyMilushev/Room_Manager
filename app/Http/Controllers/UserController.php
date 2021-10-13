@@ -107,10 +107,9 @@ class UserController extends Controller
             ],403);
         }
 
-        if ($request['password']) {
-            $user->password = bcrypt($request['password']);
-        }
-        
+        // if ($request['password']) {
+        //     $user->password = bcrypt($request['password']);
+        // }
         
         if ($request['role'] && $user['role'] == 'room manager') {
 
@@ -126,8 +125,8 @@ class UserController extends Controller
         }
 
         $user->save();
-        
-        return new UserResource($user);
+
+        return $user;
     }
     
     /**
