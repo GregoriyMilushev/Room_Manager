@@ -32,6 +32,7 @@ class RoomController extends Controller
         if ($user->role == 'room manager') {
 
             $room = Room::where('manager_id', $user->id)->first();
+            
             return new RoomResource($room);
         }
         else if ($user->role == 'admin') {
