@@ -33,6 +33,10 @@ class UserTest extends TestCase
         $this->room = Room::factory()->create([
             'manager_id' => $this->manager->id
         ]);
+
+        $this->desk = Desk::factory()->create([
+            'room_id' => $this->room->id
+        ]);
     }
 
    public function test_admin_gets_all_users()
@@ -64,7 +68,7 @@ class UserTest extends TestCase
        $response = $this->actingAs($this->admin)->delete('api/users/' . $this->admin->id);
 
        $response->assertStatus(403);
-       $response->assertSee('Cannot delete Admin user');
+       $response->assertSee('Not allowed to delete Admin user');
        $this->assertCount(3, User::all());
    }
 
@@ -137,10 +141,76 @@ class UserTest extends TestCase
         ]);
 
         $manager_room = Room::find($this->room->id);
-        $user = json_decode($response->content());
+        //$user = json_decode($response->getContent(), true);
+        $user = $response->getData();
 
         $response->assertStatus(200);
         $this->assertTrue($user->role == 'client');
         $this->assertTrue($manager_room->manager_id ==  $this->admin->id);
+   }
+
+   public function test_manager_cant_rent_desk()
+   {
+        $response = $this->actingAs($this->manager)->patch('api/users/rent/' . $this->desk->id,[
+            'rented_weeks' => 2
+        ]);
+
+        $response->assertStatus(403);
+        $response->assertSee('Only clients are allowed to rent a desk');
+   }
+
+   public function test_client_can_rent_desk()
+   {
+        $response = $this->actingAs($this->client)->patch('api/users/rent/' . $this->desk->id,[
+            'rented_weeks' => 2
+        ]);
+
+        $desk = $response->getData();
+
+        $response->assertStatus(200);
+        $this->assertTrue($desk->data->attributes->client->user->id == $this->client->id);
+   }
+
+   public function test_client_cant_rent_taken_desk()
+   {
+        $desk = Desk::factory()->create([
+            'is_taken' => true,
+            'user_id' => $this->client->id,
+        ]);
+
+        $response = $this->actingAs($this->client)->patch('api/users/rent/' . $desk->id,[
+            'rented_weeks' => 2
+        ]);
+
+        $response->assertStatus(403);
+        $response->assertSee('Desk is allready taken.');
+   }
+
+   public function test_client_cant_rent_desk_under_one_week()
+   {
+        $response = $this->actingAs($this->client)->patch('api/users/rent/' . $this->desk->id,[
+            'rented_weeks' => 0.5
+        ]);
+
+        $response->assertStatus(302);
+        $response->assertSessionHasErrors('rented_weeks');
+   }
+
+   public function test_client_can_see_rent_prices()
+   {
+        $desk = Desk::factory()->create([
+            'is_taken' => true,
+            'user_id' => $this->client->id,
+            'rented_weeks' => 3,
+        ]);
+
+        $response = $this->actingAs($this->client)->post('api/users/price');
+
+        $prices = json_decode($response->content());
+
+        $total_price = number_format($desk->rented_weeks * $desk->price_per_week, 2);
+
+        $response->assertStatus(200);
+        $this->assertTrue($prices->data->total_price == $total_price);
    }
 }

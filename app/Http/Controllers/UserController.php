@@ -106,10 +106,6 @@ class UserController extends Controller
                 'message' => 'Not allowed to update a Admin user'
             ],403);
         }
-
-        // if ($request['password']) {
-        //     $user->password = bcrypt($request['password']);
-        // }
         
         if ($request['role'] && $user['role'] == 'room manager') {
 
@@ -172,6 +168,7 @@ class UserController extends Controller
     public function price()
     {
         $desk = auth()->user()->desk;
+        
         if (!$desk) {
             return response([
                 'message' => 'There is no rented desk'
