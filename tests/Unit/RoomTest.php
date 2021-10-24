@@ -93,4 +93,67 @@ class RoomTest extends TestCase
         $response->assertStatus(201);
         $this->assertCount(2, Room::all());
     }
+
+    public function test_new_room_size_can_be_big_or_small()
+    {
+        $response = $this->actingAs($this->admin)->post('api/rooms',[
+            'size' => 'large',
+        ]);
+
+        $response->assertStatus(302);
+        $response->assertSessionHasErrors('size');
+    }
+
+    public function test_manager_cant_delete_room()
+    {
+        $response = $this->actingAs($this->manager)->delete('api/rooms/' . $this->room->id);
+
+        $response->assertStatus(401);
+    }
+
+    public function test_admin_deletes_room_and_her_desks()
+    {
+        $response = $this->actingAs($this->admin)->delete('api/rooms/' . $this->room->id);
+
+        $response->assertStatus(200);
+        $this->assertCount(0, Room::all());
+        $this->assertCount(0, Desk::all());
+    }
+
+    public function test_deleted_room_makes_manager_role_to_client()
+    {
+        $response = $this->actingAs($this->admin)->delete('api/rooms/' . $this->room->id);
+
+        $old_manager = User::find($this->manager->id);
+
+        $response->assertStatus(200);
+        $this->assertTrue($old_manager->role == 'client'); 
+    }
+
+    public function test_deleted_room_with_admin_manager_dont_change_role_to_client()
+    {
+        $room2 = Room::factory()->create([
+            'manager_id' => $this->admin->id,
+        ]);
+
+        $response = $this->actingAs($this->admin)->delete('api/rooms/' . $room2->id);
+
+        $old_manager = json_decode($response->content())->user->attributes;
+
+        $response->assertStatus(200);
+        $this->assertTrue($old_manager->role == 'admin'); 
+    }
+
+    public function test_admin_update_room_manager()
+    {
+        $response = $this->actingAs($this->admin)->patch('api/rooms/' . $this->room->id,[
+            'manager_id' => $this->client->id,
+        ]);
+
+        $manager = json_decode($response->content())->data->attributes->manager;
+
+        $response->assertStatus(200);
+        $this->assertTrue($manager->id == $this->client->id); 
+        $this->assertTrue($manager->role == 'room manager'); 
+    }
 }

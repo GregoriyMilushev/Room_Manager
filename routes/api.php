@@ -29,8 +29,9 @@ Route::post("/users/price",[UserController::class, 'price']);
 
 Route::resource('rooms', RoomController::class);
 
+Route::get('/desks/available',[DeskController::class, 'available'])->name('desks_available');
 Route::resource('desks', DeskController::class);
 Route::get('/desks/search/{position}',[DeskController::class, 'search']);
 //TODO: POST:'/desks/available', but cant access with GET:'/desks/available' ???
-Route::post('/desks/available',[DeskController::class, 'available'])->name('desks_available');
+
 

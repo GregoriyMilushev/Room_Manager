@@ -24,7 +24,7 @@ class AuthController extends Controller
             'name' => $request['name'],
             'email' => $request['email'],
             'password' => bcrypt($request['password']),
-            //'remember_token' => Str::random(10),
+            'role' => 'client'
         ]);
 
         $token = $user->createToken('mytoken');

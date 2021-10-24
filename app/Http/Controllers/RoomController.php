@@ -37,7 +37,7 @@ class RoomController extends Controller
         }
         else if ($user->role == 'admin') {
 
-            return RoomResource::collection(Room::paginate());
+            return RoomResource::collection(Room::paginate(2));
         }
         else {
 
@@ -120,7 +120,7 @@ class RoomController extends Controller
             $old_manager = User::find($room->manager_id);
             $new_manager = User::where('id',$request['manager_id'])->first();
         
-            if ($new_manager == null) {
+            if (!$new_manager) {
                 return response([
                     'message' => 'User does not exists'
                 ], 404);
@@ -134,7 +134,7 @@ class RoomController extends Controller
                 ], 403);
             }
 
-            $this->UpdateRoomManager($old_manager, $new_manager, $room);
+            $this->updateRoomManager($old_manager, $new_manager, $room);
         }
 
         $room->update($request->all());
@@ -168,7 +168,7 @@ class RoomController extends Controller
         ], 200);
     }
 
-    private function UpdateRoomManager(User $old_manager, User $new_manager, Room $room): void
+    private function updateRoomManager(User $old_manager, User $new_manager, Room $room): void
     {
         $room->manager_id = $new_manager->id;
         $room->save();
@@ -184,10 +184,5 @@ class RoomController extends Controller
             $old_manager->role = 'client';
             $old_manager->save();
         }
-    }
-
-    private function ValidateNewManager(User $new_manager)
-    {
-        
     }
 }

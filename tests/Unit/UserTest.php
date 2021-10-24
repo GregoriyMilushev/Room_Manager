@@ -166,6 +166,7 @@ class UserTest extends TestCase
         ]);
 
         $desk = $response->getData();
+        
 
         $response->assertStatus(200);
         $this->assertTrue($desk->data->attributes->client->user->id == $this->client->id);
